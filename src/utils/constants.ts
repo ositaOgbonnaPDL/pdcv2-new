@@ -2,6 +2,8 @@
  * Application constants
  */
 
+import prettyBytes from 'pretty-bytes';
+
 // Storage keys
 export const NAVIGATION_STATE = 'navigation';
 export const CREDENTIALS = 'credentials';
@@ -17,6 +19,10 @@ export const TASK_ID = 'com.transistorsoft.datauploader';
 
 // File size limit (20MB)
 export const FILE_SIZE_LIMIT = 20000000;
+export const prettySizeLimit = prettyBytes(FILE_SIZE_LIMIT);
+
+// Placeholder image
+export const placeholder = 'http://placehold.jp/500x500.png?text=PDCv2';
 
 // API
 export const baseURL = 'https://35.239.236.136';

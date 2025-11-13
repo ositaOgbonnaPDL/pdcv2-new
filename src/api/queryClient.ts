@@ -11,6 +11,11 @@ export const QUERY_KEYS = {
   TRACKS: 'tracks',
 } as const;
 
+// Export individual query keys for convenience
+export const PROJECTS = QUERY_KEYS.PROJECTS;
+export const ASSIGNED = QUERY_KEYS.ASSIGNED;
+export const TRACKS = QUERY_KEYS.TRACKS;
+
 // Create and configure the query client
 export const queryClient = new QueryClient({
   defaultOptions: {

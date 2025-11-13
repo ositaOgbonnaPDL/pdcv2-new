@@ -2,6 +2,9 @@
  * Shared type definitions
  */
 
+export * from './navigation';
+export * from './project';
+
 export type Credentials = {
   username?: string;
   password?: string;
