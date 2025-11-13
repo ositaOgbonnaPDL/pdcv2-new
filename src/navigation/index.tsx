@@ -1,32 +1,42 @@
 import React, {useState, useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {ActivityIndicator, View, StyleSheet} from 'react-native';
+import EncryptedStorage from 'react-native-encrypted-storage';
 import RootNavigator from './RootNavigator';
 import {getAsyncItem, setAsyncItem} from '../utils/storage';
-import {NAVIGATION_STATE} from '../utils/constants';
+import {NAVIGATION_STATE, PREFERENCE} from '../utils/constants';
 import {primary} from '../theme/colors';
-
-// TODO: Replace with actual auth store integration in Phase 2 (State Management)
-const useAuth = () => {
-  // Placeholder auth state
-  // This will be replaced with actual Zustand store in Phase 2
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isFirstTimeLoggedIn, setIsFirstTimeLoggedIn] = useState(false);
-
-  return {
-    isAuthenticated,
-    isFirstTimeLoggedIn,
-  };
-};
+import useAuthStore, {CREDENTIALS} from '../stores/authStore';
+import useSettingsStore from '../stores/settingsStore';
 
 const AppNavigator = () => {
   const [isReady, setIsReady] = useState(false);
   const [initialState, setInitialState] = useState();
-  const {isAuthenticated, isFirstTimeLoggedIn} = useAuth();
+
+  // Get auth state from Zustand store
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const firstTimeLoggedIn = useAuthStore((state) => state.firstTimeLoggedIn);
+  const setAuth = useAuthStore((state) => state.setAuth);
 
   useEffect(() => {
     const restoreState = async () => {
       try {
+        // Load saved preferences and credentials
+        const [preferences, credentials] = await Promise.all([
+          getAsyncItem(PREFERENCE),
+          EncryptedStorage.getItem(CREDENTIALS),
+        ]);
+
+        // Restore settings from AsyncStorage
+        if (preferences) {
+          useSettingsStore.setState(preferences as any);
+        }
+
+        // Restore auth from EncryptedStorage
+        if (credentials) {
+          setAuth(JSON.parse(credentials));
+        }
+
         // Restore navigation state from AsyncStorage
         const savedState = await getAsyncItem(NAVIGATION_STATE);
 
@@ -35,14 +45,14 @@ const AppNavigator = () => {
           setInitialState(savedState as any);
         }
       } catch (error) {
-        console.error('Failed to restore navigation state:', error);
+        console.error('Failed to restore state:', error);
       } finally {
         setIsReady(true);
       }
     };
 
     restoreState();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, setAuth]);
 
   if (!isReady) {
     return (
@@ -63,7 +73,7 @@ const AppNavigator = () => {
       }}>
       <RootNavigator
         isAuthenticated={isAuthenticated}
-        isFirstTimeLoggedIn={isFirstTimeLoggedIn}
+        isFirstTimeLoggedIn={firstTimeLoggedIn ?? false}
       />
     </NavigationContainer>
   );
