@@ -1,0 +1,16 @@
+{
+    "recorder": {
+        "title": "Audio Field",
+        "message": "Recording permission is needed to capture fields of type 'audio'"
+    },
+    "image": {
+        "library": {
+            "title": "Image Field",
+            "message": "External storage permission is needed to capture fields of type 'image'"
+        },
+        "camera": {
+            "title": "Image Field",
+            "message": "Camera permission is needed to capture fields of type 'image'"
+        }
+    }
+}

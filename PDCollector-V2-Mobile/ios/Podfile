@@ -1,0 +1,73 @@
+require_relative '../node_modules/react-native/scripts/react_native_pods'
+require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
+
+platform :ios, '11.0'
+
+target 'pdcv2' do
+  config = use_native_modules!
+
+  use_react_native!(:path => config["reactNativePath"], :hermes_enabled => true)
+
+  permissions_path = '../node_modules/react-native-permissions/ios'
+
+  pod 'Permission-Camera', :path => "#{permissions_path}/Camera"
+  pod 'Permission-LocationAccuracy', :path => "#{permissions_path}/LocationAccuracy"
+  pod 'Permission-LocationAlways', :path => "#{permissions_path}/LocationAlways"
+  pod 'Permission-LocationWhenInUse', :path => "#{permissions_path}/LocationWhenInUse"
+  pod 'Permission-MediaLibrary', :path => "#{permissions_path}/MediaLibrary"
+  pod 'Permission-Microphone', :path => "#{permissions_path}/Microphone"
+  pod 'Permission-Notifications', :path => "#{permissions_path}/Notifications"
+  pod 'Permission-PhotoLibrary', :path => "#{permissions_path}/PhotoLibrary"
+  pod 'Permission-PhotoLibraryAddOnly', :path => "#{permissions_path}/PhotoLibraryAddOnly"
+
+  # pod 'OpenSSL-Universal', :git => 'https://github.com/krzyzanowskim/OpenSSL.git', :branch => :master
+
+  target 'pdcv2Tests' do
+    inherit! :complete
+    # Pods for testing
+  end
+
+  # Enables Flipper.
+  #
+  # Note that if you have use_frameworks! enabled, Flipper will not work and
+  # you should disable these next few lines.
+  # use_flipper!({ 'Flipper' => '0.74.0' })
+
+  use_flipper!({'Flipper' => '0.96.0', 'Flipper-Folly' => '2.6.7'})
+  
+  post_install do |installer|
+    flipper_post_install(installer)
+    
+    # Apple Silicon builds require a library path tweak for Swift library discovery or "symbol not found" for swift things
+        installer.aggregate_targets.each do |aggregate_target|
+          aggregate_target.user_project.native_targets.each do |target|
+            target.build_configurations.each do |config|
+              config.build_settings['LIBRARY_SEARCH_PATHS'] = ['$(SDKROOT)/usr/lib/swift', '$(inherited)']
+            end
+          end
+          aggregate_target.user_project.save
+        end
+
+         # Flipper requires a crude patch to bump up iOS deployment target, or "error: thread-local storage is not supported for the current target"
+        # I'm not aware of any other way to fix this one other than bumping iOS deployment target to match react-native (iOS 11 now)
+        installer.pods_project.targets.each do |target|
+          target.build_configurations.each do |config|
+            config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0'
+           end
+        end
+
+        # ...but if you bump iOS deployment target, Flipper barfs again "Time.h:52:17: error: typedef redefinition with different types"
+        # We need to make one crude patch to RCT-Folly - set `__IPHONE_10_0` to our iOS target + 1
+        # https://github.com/facebook/flipper/issues/834 - 84 comments and still going...
+        `sed -i -e  $'s/__IPHONE_10_0/__IPHONE_12_0/' Pods/Flipper-Folly/folly/portability/Time.h`
+  end
+end
+
+target 'pdcv2-tvOS' do
+  # Pods for pdcv2-tvOS
+
+  target 'pdcv2-tvOSTests' do
+    inherit! :search_paths
+    # Pods for testing
+  end
+end
