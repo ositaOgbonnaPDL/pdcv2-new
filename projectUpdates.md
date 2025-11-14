@@ -723,13 +723,94 @@ const {control, handleSubmit, formState: {errors, isSubmitting}} = useForm<FormD
 - Credential encryption handled by authStore middleware
 
 ### Next Phase
-Ready to proceed with Phase 7: Media & Permissions (or Phase 6: Main Application Screens if following user's Phase 5-10 plan)
+Ready to proceed with Phase 7: Feature Screens - Batch 1
 
 ---
 
-## 📋 PHASE 7: Media & Permissions
+## 📋 PHASE 7: Feature Screens - Batch 1
+**Status:** ✅ COMPLETE
+**Completed:** 2025-11-14
+**Duration:** ~2 hours
+**Goal:** Migrate first batch of feature screens (Home, Settings, ProjectViewer)
+
+### Completed Tasks
+- [x] Install dependencies (fuse.js@^6.6.2, ramda@^0.29.0, pretty-bytes@^6.1.1)
+- [x] Migrate Project types and shared utilities
+- [x] Migrate Projects screen (Home tab) with search functionality
+- [x] Migrate Assigned screen (Home tab) with polling
+- [x] Migrate Settings screen with theme and media settings
+- [x] Migrate ProjectViewer screen (placeholder for now)
+- [x] Create Home module with AssignedProvider context
+- [x] Update HomeTabNavigator to use migrated screens
+- [x] Add QUERY_KEYS constants for TanStack Query
+- [x] Update settingsStore with additional actions (setColorScheme, setMediaQuality, etc.)
+
+### Screens Migrated
+
+**1. ProjectsScreen** (`src/modules/Home/Projects/ProjectsScreen.tsx`)
+- 2-column grid layout for projects
+- Fuse.js-powered search functionality
+- Pull-to-refresh with loading animation
+- Navigation to Project details and Settings
+- Caching with AsyncStorage
+- Theme-aware styling
+
+**2. AssignedScreen** (`src/modules/Home/Assigned/AssignedScreen.tsx`)
+- List of assigned data with project information
+- Auto-polling every 10 seconds
+- Pull-to-refresh
+- Display of field values and images
+- Navigation to Form screen with pre-filled data
+- Empty state handling
+
+**3. SettingsScreen** (`src/modules/Settings/SettingsScreen.tsx`)
+- Theme selector (Light, Dark, System)
+- Media quality settings (Low, Medium, High)
+- Save media to device toggle
+- Logout functionality with data cleanup
+- Custom Card and Switch components
+
+**4. ProjectViewerScreen** (`src/modules/ProjectViewer/ProjectViewerScreen.tsx`)
+- Placeholder for asset viewer (images, audio)
+- Will be fully implemented when Form Engine migrated
+
+**5. HomeScreen** (`src/modules/Home/HomeScreen.tsx`)
+- Wraps HomeTabNavigator with AssignedProvider
+- Provides assigned data context to both tabs
+
+### Components Created
+- `Card.tsx` - Settings card component
+- `SettingsSwitch.tsx` - Themed switch component
+- `AssignedContext.tsx` - Context provider for assigned data with polling
+
+### Utility Updates
+- Added `createFieldsMap`, `mapToArray` to `utils/project.ts`
+- Added `QUERY_KEYS` constant for TanStack Query cache keys
+- Enhanced `settingsStore` with granular update actions
+
+### Navigation Updates
+- `HomeTabNavigator.tsx` - Updated to use real screens with badge support
+- Added `collectedGeometry` param to Form route type
+
+### Known Issues
+- Some TypeScript compilation warnings related to React Native Paper v5 Colors usage
+- Need to replace `Colors` enum with MD3Colors or inline hex values (minor cleanup needed)
+- The screens are functionally complete but may need minor type fixes
+
+### Deferred to Later Phases
+- Project details screen (requires XState, TaskManager, TrackManager - complex)
+- Full ProjectViewer with asset viewing
+- Tracking features in Settings
+- Background geolocation integration
+
+### Next Phase
+Ready to proceed with Phase 8: Maps & Location (or continue with remaining feature screens)
+
+---
+
+## 📋 PHASE 8: Maps & Location
 **Status:** 🟡 NOT STARTED
-**Goal:** Set up native modules for media and permissions
+**Goal:** Migrate map functionality
 
 ### Tasks
 - [ ] Install react-native-permissions v4
