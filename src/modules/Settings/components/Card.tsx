@@ -1,9 +1,9 @@
 import React, {ReactNode} from 'react';
 import {StyleProp, StyleSheet, View, ViewStyle} from 'react-native';
-import {MD3useTheme} from 'react-native-paper';
+import {MD3Colors, useTheme} from 'react-native-paper';
 
 import {Box} from '../../../components';
-import {useSettingsStore} from '../../../stores';
+import useSettingsStore, {colorSchemeSelector} from '../../../stores/settingsStore';
 import {radius, primaryDark} from '../../../theme';
 
 type CardProps = {
@@ -12,7 +12,7 @@ type CardProps = {
 };
 
 export default function Card({style, children}: CardProps) {
-  const colorScheme = useSettingsStore((state) => state.colorScheme);
+  const colorScheme = useSettingsStore(colorSchemeSelector);
   const isDark = colorScheme === 'dark';
 
   return (
@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
   },
   light: {
     borderColor: primaryDark,
-    backgroundColor: MD3colors.primary,
+    backgroundColor: MD3Colors.primary50,
   },
   dark: {
     borderColor: 'grey',
