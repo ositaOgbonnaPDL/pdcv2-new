@@ -15,3 +15,6 @@ export * from './media';
 export * from './animations';
 export * from './notifications';
 export * from './backgroundTasks';
+export * from './analytics';
+export * from './crashReporting';
+export * from './performance';
