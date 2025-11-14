@@ -1,41 +1,36 @@
-/**
- * ProjectViewer Screen
- * Views collected data with media assets
- * Simplified version - full implementation in Phase 19
- */
-
 import React from 'react';
-import {useNavigation, useRoute} from '@react-navigation/native';
-import {View, StyleSheet, ScrollView} from 'react-native';
-import {Text, Button, MD3Colors} from 'react-native-paper';
+import {View, StyleSheet} from 'react-native';
+import {Headline, Paragraph} from 'react-native-paper';
+import {useRoute, useNavigation} from '@react-navigation/core';
 
 import {Screen, Spacer} from '../../components';
 
+/**
+ * ProjectViewer Screen
+ *
+ * This screen displays collected data assets (images, audio) for a specific task.
+ * The full AssetsViewer component will be migrated in a later phase.
+ *
+ * For now, this is a placeholder that shows the task ID.
+ */
 export default function ProjectViewerScreen() {
   const {params} = useRoute();
-  const nav = useNavigation<any>();
+  const nav = useNavigation();
   const {id} = (params ?? {}) as any;
 
   return (
     <Screen>
-      <ScrollView contentContainerStyle={styles.container}>
+      <View style={styles.container}>
         <Spacer gap={20}>
-          <Text variant="headlineMedium">Collected Data Viewer</Text>
-
-          <Text variant="bodyLarge" style={{color: MD3Colors.neutral60}}>
-            This screen will display collected data with images, audio, and
-            other media once the Assets Viewer is implemented in Phase 19.
-          </Text>
-
-          <Text variant="bodyMedium" style={{color: MD3Colors.neutral50}}>
-            Data ID: {id || 'N/A'}
-          </Text>
-
-          <Button mode="contained" onPress={() => nav.goBack()}>
-            Go Back
-          </Button>
+          <Headline>Project Data Viewer</Headline>
+          <Paragraph>Task ID: {id}</Paragraph>
+          <Paragraph style={styles.description}>
+            The full asset viewer (images, audio playback, etc.) will be
+            available in a future update. This feature is part of the Form
+            Engine and Media components migration.
+          </Paragraph>
         </Spacer>
-      </ScrollView>
+      </View>
     </Screen>
   );
 }
@@ -43,7 +38,12 @@ export default function ProjectViewerScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  description: {
+    textAlign: 'center',
+    opacity: 0.7,
   },
 });

@@ -1,103 +1,173 @@
-/**
- * Settings Screen
- * App settings including theme, media quality, and logout
- */
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
 import React, {useLayoutEffect} from 'react';
 import {
   Alert,
   ColorSchemeName,
   ScrollView,
-  StyleProp,
   StyleSheet,
-  TouchableNativeFeedback,
+  TouchableOpacity,
   View,
-  ViewStyle,
 } from 'react-native';
-import {Button, MD3Colors, Text, useTheme} from 'react-native-paper';
+import {
+  Button,
+  Paragraph,
+  Subheading,
+  Title,
+  useTheme,
+} from 'react-native-paper';
+import {MD3Colors} from 'react-native-paper/lib/typescript/types';
+import {useQueryClient} from '@tanstack/react-query';
 
-import {Box, Screen, Spacer} from '../../components';
-import useAuthStore from '../../stores/authStore';
-import useSettingsStore, {
-  colorSchemeSelector,
-  ImageQuality,
-} from '../../stores/settingsStore';
-import {radius, primary, primaryDark} from '../../theme';
-import {queryClient, PROJECTS, ASSIGNED} from '../../api/queryClient';
-import Card from './components/Card';
-import Switch from './components/Switch';
+import {Box, Screen, Spacer} from '../../../components';
+import {useAuthStore, useSettingsStore, MediaQuality} from '../../../stores';
+import {radius, primaryDark} from '../../../theme';
+import {QUERY_KEYS} from '../../../utils';
+import {Card, SettingsSwitch} from './components';
 
 const themes: ColorSchemeName[] = ['dark', 'light'];
 
-const imageQuality: {value: ImageQuality; label: string}[] = [
-  {value: ImageQuality.LOW, label: 'Low'},
-  {value: ImageQuality.MEDIUM, label: 'Medium'},
-  {value: ImageQuality.HIGH, label: 'High'},
+const mediaQualities: {value: MediaQuality; label: string}[] = [
+  {value: 'LOW', label: 'Low'},
+  {value: 'MEDIUM', label: 'Medium'},
+  {value: 'HIGH', label: 'High'},
 ];
 
-const Media = ({style}: any) => {
-  const {colors} = useTheme();
-  const media = useSettingsStore((state) => state.media);
-  const colorScheme = useSettingsStore(colorSchemeSelector);
-  const setMedia = useSettingsStore((state) => state.setMedia);
+type ThemeSelectorProps = {
+  value: 'dark' | 'light' | 'system';
+  onPress: () => void;
+  status: 'checked' | 'unchecked';
+  isDarkPreview?: boolean;
+};
 
-  const isDark = colorScheme === 'dark';
-
-  const color = isDark ? MD3Colors.neutral100 : primaryDark;
+const ThemeSelector = ({
+  value,
+  onPress,
+  status,
+  isDarkPreview = false,
+}: ThemeSelectorProps) => {
+  const isSystem = value === 'system';
 
   return (
-    <View style={style}>
+    <Box alignItems="center" style={styles.themeSelectorContainer}>
       <Spacer>
-        <Text variant="titleLarge">Media</Text>
+        <TouchableOpacity onPress={onPress}>
+          <View
+            style={[
+              styles.themeWrapper,
+              status === 'checked' && styles.themeChecked,
+            ]}>
+            <View
+              style={[
+                styles.themePreview,
+                isSystem
+                  ? styles.themePreviewSplit
+                  : isDarkPreview
+                  ? styles.themePreviewDark
+                  : styles.themePreviewLight,
+              ]}
+            />
+          </View>
+        </TouchableOpacity>
+
+        <Paragraph style={styles.themeLabel}>
+          {value.charAt(0).toUpperCase() + value.slice(1)}
+        </Paragraph>
+      </Spacer>
+    </Box>
+  );
+};
+
+const ThemeSection = () => {
+  const colorScheme = useSettingsStore((state) => state.colorScheme);
+  const systemTheme = useSettingsStore((state) => state.systemTheme);
+  const setColorScheme = useSettingsStore((state) => state.setColorScheme);
+  const setSystemTheme = useSettingsStore((state) => state.setSystemTheme);
+
+  return (
+    <View style={styles.section}>
+      <Spacer>
+        <Title>Theme</Title>
+        <Box flexDirection="row">
+          <Spacer horizontal gap={20}>
+            {themes.map((theme) => (
+              <ThemeSelector
+                key={theme}
+                value={theme}
+                isDarkPreview={theme === 'dark'}
+                onPress={() => {
+                  setSystemTheme(false);
+                  setColorScheme(theme);
+                }}
+                status={
+                  theme === colorScheme && !systemTheme
+                    ? 'checked'
+                    : 'unchecked'
+                }
+              />
+            ))}
+
+            <ThemeSelector
+              value="system"
+              onPress={() => setSystemTheme(true)}
+              status={systemTheme ? 'checked' : 'unchecked'}
+            />
+          </Spacer>
+        </Box>
+      </Spacer>
+    </View>
+  );
+};
+
+const MediaSection = () => {
+  const {colors} = useTheme();
+  const mediaQuality = useSettingsStore((state) => state.mediaQuality);
+  const canSaveMedia = useSettingsStore((state) => state.canSaveMedia);
+  const setMediaQuality = useSettingsStore((state) => state.setMediaQuality);
+  const setCanSaveMedia = useSettingsStore((state) => state.setCanSaveMedia);
+  const colorScheme = useSettingsStore((state) => state.colorScheme);
+
+  const isDark = colorScheme === 'dark';
+  const checkboxColor = isDark ? MD3'#FFFFFF' : colors.primary;
+
+  return (
+    <View style={styles.section}>
+      <Spacer>
+        <Title>Media</Title>
         <View>
           <Spacer>
             <Card style={styles.cardRow}>
-              <Text variant="titleMedium">Save Media To Device</Text>
-              <Switch
-                value={media.canSave}
-                onValueChange={(canSave) => {
-                  setMedia({canSave});
-                }}
+              <Subheading>Save Media To Device</Subheading>
+              <SettingsSwitch
+                value={canSaveMedia}
+                onValueChange={setCanSaveMedia}
               />
             </Card>
 
             <Card>
               <Spacer>
-                <Text variant="titleMedium">Photo Quality</Text>
-                <View style={{flexWrap: 'wrap', flexDirection: 'row'}}>
-                  {imageQuality.map(({label, value: qualityValue}) => {
-                    const isSelected = qualityValue === media.quality;
-                    return (
-                      <TouchableNativeFeedback
-                        key={qualityValue}
-                        onPress={() => {
-                          setMedia({quality: qualityValue});
-                        }}>
-                        <View
-                          style={[
-                            styles.qualityOption,
-                            {
-                              borderColor: isSelected
-                                ? color
-                                : MD3Colors.neutral40,
-                              backgroundColor: isSelected
-                                ? `${color}20`
-                                : 'transparent',
-                            },
-                          ]}>
-                          <Text
-                            variant="bodyMedium"
-                            style={{
-                              color: isSelected ? color : MD3Colors.neutral60,
-                              fontWeight: isSelected ? 'bold' : 'normal',
-                            }}>
-                            {label}
-                          </Text>
-                        </View>
-                      </TouchableNativeFeedback>
-                    );
-                  })}
+                <Subheading>Photo Quality</Subheading>
+                <View style={styles.qualityContainer}>
+                  {mediaQualities.map(({label, value}) => (
+                    <TouchableOpacity
+                      key={value}
+                      style={styles.qualityOption}
+                      onPress={() => setMediaQuality(value)}>
+                      <View
+                        style={[
+                          styles.checkbox,
+                          {borderColor: checkboxColor},
+                          value === mediaQuality && [
+                            styles.checkboxChecked,
+                            {backgroundColor: checkboxColor},
+                          ],
+                        ]}
+                      />
+                      <Paragraph style={{color: checkboxColor, marginLeft: 8}}>
+                        {label}
+                      </Paragraph>
+                    </TouchableOpacity>
+                  ))}
                 </View>
               </Spacer>
             </Card>
@@ -108,124 +178,15 @@ const Media = ({style}: any) => {
   );
 };
 
-const ThemeSelector = ({
-  value,
-  style,
-  status,
-  onPress,
-  partsStyle,
-  containerStyle,
-  contentContainerStyle,
-}: {
-  value: ColorSchemeName | 'system';
-  onPress(): void;
-  style?: StyleProp<ViewStyle>;
-  status: 'checked' | 'unchecked';
-  containerStyle?: StyleProp<ViewStyle>;
-  contentContainerStyle?: StyleProp<ViewStyle>;
-  partsStyle?: Record<'top' | 'bottom', StyleProp<ViewStyle>>;
-}) => {
-  return (
-    <Box alignItems="center" style={style}>
-      <Spacer>
-        <TouchableNativeFeedback onPress={onPress}>
-          <View
-            style={[
-              styles.themeWrapper,
-              status === 'checked' && styles.themeChecked,
-              containerStyle,
-            ]}>
-            <Box
-              width={50}
-              height={50}
-              style={contentContainerStyle}
-              transform={[{rotate: '-45deg'}, {scale: 1.5}]}>
-              <View style={[styles.part, partsStyle?.top]} />
-              <View style={[styles.part, partsStyle?.bottom]} />
-            </Box>
-          </View>
-        </TouchableNativeFeedback>
-
-        <Text
-          variant="bodyMedium"
-          style={{
-            fontWeight: '500',
-            textTransform: 'capitalize',
-          }}>
-          {value}
-        </Text>
-      </Spacer>
-    </Box>
-  );
-};
-
-const Theme = ({style}: any) => {
-  const scheme = useSettingsStore(colorSchemeSelector);
-  const system = useSettingsStore((state) => state.theme.system);
-  const setTheme = useSettingsStore((state) => state.setTheme);
-
-  return (
-    <View style={style}>
-      <Spacer>
-        <Text variant="titleLarge">Theme</Text>
-        <Box flexDirection="row">
-          <Spacer horizontal gap={20}>
-            <>
-              {themes.map((colorScheme) => {
-                const isLight = colorScheme === 'light';
-                const color = isLight
-                  ? styles.colorSchemeLight
-                  : styles.colorSchemeDark;
-
-                return (
-                  <ThemeSelector
-                    key={colorScheme}
-                    style={{flex: 1}}
-                    value={colorScheme}
-                    containerStyle={color}
-                    contentContainerStyle={color}
-                    onPress={() => {
-                      setTheme({system: false, colorScheme});
-                    }}
-                    status={
-                      colorScheme === scheme && !system ? 'checked' : 'unchecked'
-                    }
-                    partsStyle={{
-                      bottom: color,
-                      top: !isLight
-                        ? styles.colorSchemeDark
-                        : styles.colorSchemeLight,
-                    }}
-                  />
-                );
-              })}
-            </>
-
-            <ThemeSelector
-              value="system"
-              style={{flex: 1}}
-              onPress={() => setTheme({system: true})}
-              status={system ? 'checked' : 'unchecked'}
-              partsStyle={{
-                top: styles.colorSchemeDark,
-                bottom: styles.colorSchemeLight,
-              }}
-            />
-          </Spacer>
-        </Box>
-      </Spacer>
-    </View>
-  );
-};
-
 export default function SettingsScreen() {
-  const nav = useNavigation<any>();
+  const nav = useNavigation();
+  const queryClient = useQueryClient();
   const logout = useAuthStore((state) => state.logout);
 
   useLayoutEffect(() => {
     nav.setOptions({
       headerRight: () => (
-        <View style={{paddingHorizontal: 10}}>
+        <View style={styles.headerRight}>
           <Button
             onPress={() => {
               Alert.alert(
@@ -239,13 +200,18 @@ export default function SettingsScreen() {
                   {
                     text: 'Log me out',
                     style: 'destructive',
-                    onPress: () => {
+                    onPress: async () => {
                       // Clear query cache
-                      queryClient.cancelQueries({queryKey: [PROJECTS]});
-                      queryClient.cancelQueries({queryKey: [ASSIGNED]});
                       queryClient.clear();
 
-                      // Logout (will clear auth state and encrypted storage)
+                      // Clear AsyncStorage
+                      await AsyncStorage.multiRemove([
+                        QUERY_KEYS.PROJECTS,
+                        QUERY_KEYS.ASSIGNED,
+                        QUERY_KEYS.TRACKS,
+                      ]);
+
+                      // Logout (will clear auth store and encrypted storage)
                       logout();
                     },
                   },
@@ -258,16 +224,15 @@ export default function SettingsScreen() {
         </View>
       ),
     });
-  }, [nav, logout]);
+  }, [nav, logout, queryClient]);
 
   return (
-    <Screen style={{padding: 0}}>
-      <ScrollView contentContainerStyle={{padding: 20}}>
-        <View style={{marginTop: '10%'}}>
+    <Screen style={styles.screen}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.content}>
           <Spacer gap={20}>
-            <Media />
-
-            <Theme />
+            <MediaSection />
+            <ThemeSection />
           </Spacer>
         </View>
       </ScrollView>
@@ -276,35 +241,77 @@ export default function SettingsScreen() {
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    padding: 0,
+  },
+  scrollContainer: {
+    padding: 20,
+  },
+  content: {
+    marginTop: '10%',
+  },
+  headerRight: {
+    paddingHorizontal: 10,
+  },
+  section: {
+    marginBottom: 20,
+  },
   cardRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  qualityContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
   qualityOption: {
-    margin: 5,
-    padding: 10,
-    borderWidth: 2,
-    borderRadius: radius,
-    minWidth: 80,
+    flexDirection: 'row',
     alignItems: 'center',
+    margin: 5,
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 2,
+    borderRadius: 4,
+  },
+  checkboxChecked: {
+    borderWidth: 0,
+  },
+  themeSelectorContainer: {
+    flex: 1,
   },
   themeWrapper: {
     borderWidth: 3,
     overflow: 'hidden',
     borderRadius: radius,
-    borderColor: MD3Colors.neutral30,
+    borderColor: MD3colors.surfaceVariant,
   },
   themeChecked: {
-    borderColor: primary,
+    borderColor: MD3colors.primary,
   },
-  part: {
-    height: '50%',
+  themePreview: {
+    width: 50,
+    height: 50,
   },
-  colorSchemeLight: {
-    backgroundColor: MD3Colors.neutral100,
+  themePreviewLight: {
+    backgroundColor: MD3'#FFFFFF',
   },
-  colorSchemeDark: {
+  themePreviewDark: {
     backgroundColor: primaryDark,
+  },
+  themePreviewSplit: {
+    backgroundColor: primaryDark,
+    borderTopColor: primaryDark,
+    borderRightColor: MD3'#FFFFFF',
+    borderBottomColor: MD3'#FFFFFF',
+    borderLeftColor: primaryDark,
+    borderWidth: 25,
+    transform: [{rotate: '45deg'}, {scale: 1.2}],
+  },
+  themeLabel: {
+    fontWeight: '500',
+    textTransform: 'capitalize',
   },
 });

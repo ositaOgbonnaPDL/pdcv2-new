@@ -1,1 +1,1 @@
-export {default} from '../modules/ProjectViewer';
+export {ProjectViewerScreen as default} from '../modules/ProjectViewer';

@@ -2,5 +2,5 @@
  * API exports
  */
 
-export {default as http, get, post, put, del} from './httpClient';
-export {queryClient, QUERY_KEYS} from './queryClient';
+export {default as http, default as httpClient, get, post, put, del} from './httpClient';
+export {queryClient} from './queryClient';

@@ -17,6 +17,7 @@ export type RootStackParamList = {
   Form: {
     project?: any;
     data?: any;
+    collectedGeometry?: any;
   };
   Project: {
     project?: any;

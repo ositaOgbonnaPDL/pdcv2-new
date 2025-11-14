@@ -33,7 +33,11 @@ export type SettingsState = {
 
 export type SettingsActions = {
   setTheme: (theme: SettingsState['theme']) => void;
+  setColorScheme: (colorScheme: ColorSchemeName) => void;
+  setSystemTheme: (system: boolean) => void;
   setMedia: (media: Partial<SettingsState['media']>) => void;
+  setMediaQuality: (quality: ImageQuality) => void;
+  setCanSaveMedia: (canSave: boolean) => void;
   setTracking: (tracking: Partial<SettingsState['tracking']>) => void;
 };
 
@@ -82,12 +86,28 @@ const useSettingsStore = create<SettingsStore>(
       set({media: {...get().media, ...media}});
     },
 
+    setMediaQuality: (quality) => {
+      set({media: {...get().media, quality}});
+    },
+
+    setCanSaveMedia: (canSave) => {
+      set({media: {...get().media, canSave}});
+    },
+
     setTracking: (tracking) => {
       set({tracking: {...get().tracking, ...tracking}});
     },
 
     setTheme: (theme) => {
       set({theme: {...get().theme, ...theme}});
+    },
+
+    setColorScheme: (colorScheme) => {
+      set({theme: {...get().theme, colorScheme}});
+    },
+
+    setSystemTheme: (system) => {
+      set({theme: {...get().theme, system}});
     },
   })),
 );

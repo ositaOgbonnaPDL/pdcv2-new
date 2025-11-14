@@ -13,6 +13,13 @@ export const DISCLOSURE = 'disclosure';
 export const FAILED_TRACKS = 'failed_tracks';
 export const TRACKER_PREFERENCE = 'tracker_preference';
 
+// Query keys for TanStack Query
+export const QUERY_KEYS = {
+  PROJECTS: 'projects',
+  ASSIGNED: 'assigned',
+  TRACKS: 'tracks',
+} as const;
+
 // Notification
 export const NOTIFICATION_CHANNEL = 'pdc';
 export const TASK_ID = 'com.transistorsoft.datauploader';

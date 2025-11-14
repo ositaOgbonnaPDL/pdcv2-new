@@ -1,26 +1,18 @@
-/**
- * Card Component
- * Container with themed background and border
- */
-
-import React, {ReactElement} from 'react';
+import React, {ReactNode} from 'react';
 import {StyleProp, StyleSheet, View, ViewStyle} from 'react-native';
-import {primary, primaryDark} from '../../../theme';
+import {MD3useTheme} from 'react-native-paper';
+
 import {Box} from '../../../components';
-import useSettingsStore, {
-  colorSchemeSelector,
-} from '../../../stores/settingsStore';
-import {radius} from '../../../theme';
+import {useSettingsStore} from '../../../stores';
+import {radius, primaryDark} from '../../../theme';
 
-export default function Card({
-  style,
-  children,
-}: {
+type CardProps = {
   style?: StyleProp<ViewStyle>;
-  children: ReactElement | ReactElement[];
-}) {
-  const colorScheme = useSettingsStore(colorSchemeSelector);
+  children: ReactNode;
+};
 
+export default function Card({style, children}: CardProps) {
+  const colorScheme = useSettingsStore((state) => state.colorScheme);
   const isDark = colorScheme === 'dark';
 
   return (
@@ -40,7 +32,7 @@ const styles = StyleSheet.create({
   },
   light: {
     borderColor: primaryDark,
-    backgroundColor: primary,
+    backgroundColor: MD3colors.primary,
   },
   dark: {
     borderColor: 'grey',
