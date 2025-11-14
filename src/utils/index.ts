@@ -11,3 +11,5 @@ export * from './imagePicker';
 export * from './geolocation';
 export * from './validation';
 export * from './formUtils';
+export * from './media';
+export * from './animations';
