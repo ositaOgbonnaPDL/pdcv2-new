@@ -15,12 +15,18 @@ import AppNavigator from './src/navigation';
 import {queryClient} from './src/api/queryClient';
 import {lightTheme, darkTheme} from './src/theme';
 import useSettingsStore, {colorSchemeSelector} from './src/stores/settingsStore';
+import {loadSavedLanguage} from './src/utils/language';
 
 function App() {
   const systemColorScheme = useColorScheme();
   const userColorScheme = useSettingsStore(colorSchemeSelector);
   const systemEnabled = useSettingsStore((state) => state.theme.system);
   const setTheme = useSettingsStore((state) => state.setTheme);
+
+  // Initialize i18n with saved language preference
+  useEffect(() => {
+    loadSavedLanguage();
+  }, []);
 
   // Update settings store when system color scheme changes
   useEffect(() => {
