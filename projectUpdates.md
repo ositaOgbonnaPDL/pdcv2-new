@@ -3,7 +3,7 @@
 
 **Last Updated:** 2025-11-14
 **Status:** In Progress
-**Current Phase:** Phase 12 - Analytics, Crash Reporting & Monitoring ✅ COMPLETE
+**Current Phase:** Phase 13 - Deep Linking ✅ COMPLETE
 
 ---
 
@@ -2197,6 +2197,412 @@ Ready to proceed with Background Location Tracking or other feature modules
 
 ---
 
+## 📋 PHASE 13: Deep Linking
+**Status:** ✅ COMPLETE
+**Completed:** 2025-11-14
+**Duration:** ~1 hour
+**Goal:** Configure deep linking for app navigation via URLs
+
+### Completed Tasks
+- [x] Reviewed deep linking setup in old project (none found)
+- [x] Configured AndroidManifest.xml for deep links
+  - Custom URL scheme: pdcv2://
+  - App Links placeholder (HTTPS)
+- [x] Configured iOS Info.plist for deep links
+  - CFBundleURLTypes for custom scheme
+  - Associated domains placeholder
+- [x] Created deep linking configuration for React Navigation
+- [x] Created deep link utilities
+- [x] Integrated linking with NavigationContainer
+- [x] Tested TypeScript compilation
+
+### Files Modified/Created
+
+**1. Android Configuration** (`android/app/src/main/AndroidManifest.xml`)
+
+Added deep link intent filters to MainActivity:
+
+**Custom URL Scheme (pdcv2://):**
+```xml
+<intent-filter>
+    <action android:name="android.intent.action.VIEW" />
+    <category android:name="android.intent.category.DEFAULT" />
+    <category android:name="android.intent.category.BROWSABLE" />
+    <data android:scheme="pdcv2" />
+</intent-filter>
+```
+
+**App Links Placeholder (HTTPS):**
+```xml
+<!-- Uncomment and configure when domain is ready -->
+<!--
+<intent-filter android:autoVerify="true">
+    <action android:name="android.intent.action.VIEW" />
+    <category android:name="android.intent.category.DEFAULT" />
+    <category android:name="android.intent.category.BROWSABLE" />
+    <data android:scheme="https" />
+    <data android:host="pdcollector.app" />
+</intent-filter>
+-->
+```
+
+**2. iOS Configuration** (`ios/pdcv2/Info.plist`)
+
+Added URL scheme configuration:
+
+**CFBundleURLTypes:**
+```xml
+<key>CFBundleURLTypes</key>
+<array>
+    <dict>
+        <key>CFBundleURLName</key>
+        <string>com.pdcv2</string>
+        <key>CFBundleURLSchemes</key>
+        <array>
+            <string>pdcv2</string>
+        </array>
+    </dict>
+</array>
+```
+
+**Associated Domains Placeholder:**
+```xml
+<!-- Uncomment when domain is ready -->
+<!--
+<key>com.apple.developer.associated-domains</key>
+<array>
+    <string>applinks:pdcollector.app</string>
+    <string>applinks:www.pdcollector.app</string>
+</array>
+-->
+```
+
+**3. Navigation Linking Configuration** (`src/navigation/linking.ts`)
+
+Created comprehensive linking configuration:
+
+**Prefixes:**
+- Custom scheme: `pdcv2://`
+- Universal links placeholder: `https://pdcollector.app`
+
+**Screen Paths:**
+- Login: `pdcv2://login`
+- Password Change: `pdcv2://password-change`
+- Home/App: `pdcv2://app`
+- Map: `pdcv2://map/:projectId?`
+- Form: `pdcv2://form`
+- Project: `pdcv2://project`
+- Tracker: `pdcv2://tracker/:projectId?`
+- Settings: `pdcv2://settings`
+- Project Viewer: `pdcv2://project-viewer`
+
+**Deep Link Pattern Constants:**
+```typescript
+export const DeepLinkPatterns = {
+  LOGIN: 'pdcv2://login',
+  PASSWORD_CHANGE: 'pdcv2://password-change',
+  PROJECTS: 'pdcv2://app/projects',
+  PROJECT_DETAIL: (projectId: string) => `pdcv2://app/projects/${projectId}`,
+  ASSIGNED: 'pdcv2://app/assigned',
+  SETTINGS: 'pdcv2://app/settings',
+  FORM: (formId: string) => `pdcv2://form/${formId}`,
+  MAP: 'pdcv2://map',
+  TRACKER: 'pdcv2://tracker',
+  TRACKER_PROJECT: (projectId: string) => `pdcv2://tracker/${projectId}`,
+} as const;
+```
+
+**4. Deep Linking Utilities** (`src/utils/deepLinking.ts`)
+
+Comprehensive deep link handling:
+
+**URL Handling:**
+- `getInitialURL()` - Get app launch URL
+- `canOpenURL()` - Check if URL can be opened
+- `openURL()` - Open external URL
+- `openSettings()` - Open app settings
+
+**Deep Link Parsing:**
+- `parseDeepLink()` - Parse URL into type and params
+- `isValidDeepLink()` - Validate deep link URL
+- `buildDeepLink()` - Build deep link from type and params
+
+**URL Change Listener:**
+```typescript
+export const addURLChangeListener = (
+  callback: (url: string) => void,
+): (() => void) => {
+  const subscription = Linking.addEventListener('url', ({url}) => {
+    callback(url);
+  });
+  return () => subscription.remove();
+};
+```
+
+**PDC-Specific Helpers:**
+- `createProjectLink()` - Build project deep link
+- `createFormLink()` - Build form deep link
+- `createTrackerLink()` - Build tracker deep link
+- `copyDeepLinkToClipboard()` - Copy to clipboard
+- `shareDeepLink()` - Share via native dialog (placeholder)
+
+**Deep Link Types:**
+```typescript
+export type DeepLinkType =
+  | 'login'
+  | 'password-change'
+  | 'projects'
+  | 'project-detail'
+  | 'assigned'
+  | 'settings'
+  | 'form'
+  | 'map'
+  | 'tracker'
+  | 'unknown';
+
+export interface DeepLinkData {
+  type: DeepLinkType;
+  url: string;
+  params?: {
+    projectId?: string;
+    formId?: string;
+    [key: string]: string | undefined;
+  };
+}
+```
+
+**5. Navigation Integration** (`src/navigation/index.tsx`)
+
+Integrated linking configuration with NavigationContainer:
+```typescript
+import {linking} from './linking';
+
+<NavigationContainer
+  linking={linking}
+  initialState={initialState}
+  onStateChange={...}>
+  ...
+</NavigationContainer>
+```
+
+**6. Updated Files:**
+- `src/utils/index.ts` - Added deepLinking export
+
+### Usage Examples
+
+**Parse a Deep Link:**
+```typescript
+import {parseDeepLink} from './utils/deepLinking';
+
+const url = 'pdcv2://tracker/project-123';
+const parsed = parseDeepLink(url);
+// Result: {
+//   type: 'tracker',
+//   url: 'pdcv2://tracker/project-123',
+//   params: { projectId: 'project-123' }
+// }
+```
+
+**Build a Deep Link:**
+```typescript
+import {buildDeepLink} from './utils/deepLinking';
+
+const url = buildDeepLink('tracker', { projectId: 'project-123' });
+// Result: 'pdcv2://tracker/project-123'
+```
+
+**Create Specific Links:**
+```typescript
+import {createProjectLink, createFormLink} from './utils/deepLinking';
+
+const projectUrl = createProjectLink('proj-456');
+// Result: 'pdcv2://app/projects/proj-456'
+
+const formUrl = createFormLink('form-789');
+// Result: 'pdcv2://form/form-789'
+```
+
+**Listen to URL Changes:**
+```typescript
+import {addURLChangeListener, parseDeepLink} from './utils/deepLinking';
+
+// In a component or App.tsx
+useEffect(() => {
+  const removeListener = addURLChangeListener((url) => {
+    const parsed = parseDeepLink(url);
+    console.log('Deep link received:', parsed);
+    // Handle navigation based on parsed data
+  });
+
+  return removeListener;
+}, []);
+```
+
+**Open External URL:**
+```typescript
+import {openURL} from './utils/deepLinking';
+
+await openURL('https://example.com');
+```
+
+**Copy Link to Clipboard:**
+```typescript
+import {copyDeepLinkToClipboard, createProjectLink} from './utils/deepLinking';
+
+const projectLink = createProjectLink('proj-123');
+await copyDeepLinkToClipboard(projectLink);
+// Link copied to clipboard
+```
+
+### Testing Deep Links
+
+**Android Testing:**
+```bash
+# Test deep link via ADB
+adb shell am start -W -a android.intent.action.VIEW -d "pdcv2://login" com.pdcv2
+
+# Test tracker with project
+adb shell am start -W -a android.intent.action.VIEW -d "pdcv2://tracker/project-123" com.pdcv2
+
+# Test app links (when configured)
+adb shell am start -W -a android.intent.action.VIEW -d "https://pdcollector.app/login" com.pdcv2
+```
+
+**iOS Testing:**
+```bash
+# Test deep link via xcrun (iOS Simulator)
+xcrun simctl openurl booted "pdcv2://login"
+
+# Test with parameters
+xcrun simctl openurl booted "pdcv2://tracker/project-123"
+
+# Test universal links (when configured)
+xcrun simctl openurl booted "https://pdcollector.app/login"
+```
+
+**Browser Testing:**
+Create HTML test page:
+```html
+<!DOCTYPE html>
+<html>
+<body>
+  <h1>PDC Deep Link Tester</h1>
+  <a href="pdcv2://login">Open Login</a>
+  <a href="pdcv2://tracker">Open Tracker</a>
+  <a href="pdcv2://tracker/project-123">Open Tracker with Project</a>
+</body>
+</html>
+```
+
+### Integration Points
+
+**With Authentication:**
+- Reset password link: `pdcv2://password-change`
+- Auto-login after registration
+
+**With Projects:**
+- Share project link: `pdcv2://app/projects/{projectId}`
+- Email notifications with project links
+
+**With Forms:**
+- Resume form from notification: `pdcv2://form/{formId}`
+- Share form for collaboration
+
+**With Tracking:**
+- Start tracking from notification: `pdcv2://tracker/{projectId}`
+- Share tracking session
+
+**With Push Notifications:**
+- Navigate to specific screen on notification tap
+- Pass notification data via deep link params
+
+### Architecture Decisions
+
+**Custom URL Scheme:**
+- Using `pdcv2://` for simplicity and consistency
+- Works offline without server configuration
+- Immediate availability on install
+
+**Universal Links (Deferred):**
+- Requires domain ownership and HTTPS setup
+- Needs `.well-known/apple-app-site-association` (iOS)
+- Needs Digital Asset Links JSON (Android)
+- Provides better user experience (fallback to web)
+- Can be added when backend/domain is ready
+
+**Linking Configuration:**
+- Centralized in `src/navigation/linking.ts`
+- Type-safe with RootStackParamList
+- Easy to extend with new routes
+
+**Parse vs. Navigation:**
+- Deep link parsing is separate from navigation
+- Allows custom handling before navigation
+- Enables analytics, validation, auth checks
+
+### Testing Notes
+- [x] TypeScript compilation successful
+- [x] Linking configuration type-safe
+- [x] Deep link utilities properly typed
+- [ ] Runtime testing pending (requires device/emulator/simulator):
+  - [ ] Android custom scheme (pdcv2://)
+  - [ ] iOS custom scheme (pdcv2://)
+  - [ ] URL parameter parsing
+  - [ ] Navigation from deep link
+  - [ ] Deep link while app running
+  - [ ] Deep link while app closed
+  - [ ] Invalid deep link handling
+
+### Known Limitations
+
+**Current Implementation:**
+- Universal links/App links not configured (requires domain)
+- No server-side validation of deep links
+- No deep link analytics tracking (can add with Phase 12 analytics)
+
+**Platform Differences:**
+- iOS requires `LSApplicationQueriesSchemes` for checking other app URLs
+- Android auto-verify requires server configuration
+- iOS universal links require HTTPS and server config
+
+### Migration Notes
+
+**From Old Project:**
+- No deep linking found in old project
+- Only basic `Linking.getInitialURL()` for state restoration
+- Adding deep linking is new capability
+
+**Configuration:**
+- Using React Navigation v6 linking API
+- Compatible with current navigation structure
+- Ready for universal links when needed
+
+### Universal Links Setup (Future)
+
+When ready to add universal links/app links:
+
+**iOS Steps:**
+1. Add associated domains to app entitlements
+2. Create `apple-app-site-association` file
+3. Host at `https://pdcollector.app/.well-known/apple-app-site-association`
+4. Uncomment universal link config in Info.plist
+
+**Android Steps:**
+1. Create Digital Asset Links JSON
+2. Host at `https://pdcollector.app/.well-known/assetlinks.json`
+3. Uncomment app links config in AndroidManifest.xml
+4. Add `android:autoVerify="true"` to intent filter
+
+**Server Files Needed:**
+- `apple-app-site-association` (iOS)
+- `assetlinks.json` (Android)
+- Both files must be served with correct MIME types
+
+### Next Phase
+Ready to proceed with other feature modules or testing
+
+---
+
 ## 📋 PHASE 10: Form Engine Core
 **Status:** 🟡 NOT STARTED
 **Goal:** Migrate dynamic form engine
@@ -2642,6 +3048,7 @@ If major issues arise in any phase:
 
 | Date | Phase | Changes | Notes |
 |------|-------|---------|-------|
+| 2025-11-14 | 13 | Completed Deep Linking | Custom URL scheme (pdcv2://), linking configuration, deep link utilities, Android/iOS configuration |
 | 2025-11-14 | 12 | Completed Analytics, Crash Reporting & Monitoring | Firebase Analytics, Crashlytics, Performance Monitoring configured, 3 utility files created |
 | 2025-11-14 | 11 | Completed Notifications & Background Tasks | Notification and background task utilities created |
 | 2025-11-14 | 10 | Completed Media, Assets & Animations | Media utilities, animation presets, animation guide created |

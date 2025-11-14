@@ -3,6 +3,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {ActivityIndicator, View, StyleSheet} from 'react-native';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import RootNavigator from './RootNavigator';
+import {linking} from './linking';
 import {getAsyncItem, setAsyncItem} from '../utils/storage';
 import {NAVIGATION_STATE, PREFERENCE} from '../utils/constants';
 import {primary} from '../theme/colors';
@@ -64,6 +65,7 @@ const AppNavigator = () => {
 
   return (
     <NavigationContainer
+      linking={linking}
       initialState={initialState}
       onStateChange={state => {
         // Persist navigation state to AsyncStorage
