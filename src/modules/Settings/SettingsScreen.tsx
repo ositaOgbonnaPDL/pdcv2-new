@@ -19,10 +19,10 @@ import {
 import {MD3Colors} from 'react-native-paper/lib/typescript/types';
 import {useQueryClient} from '@tanstack/react-query';
 
-import {Box, Screen, Spacer} from '../../../components';
-import {useAuthStore, useSettingsStore, MediaQuality} from '../../../stores';
-import {radius, primaryDark} from '../../../theme';
-import {QUERY_KEYS} from '../../../utils';
+import {Box, Screen, Spacer} from '../../components';
+import {useAuthStore, useSettingsStore, MediaQuality} from '../../stores';
+import {radius, primaryDark} from '../../theme';
+import {QUERY_KEYS} from '../../utils';
 import {Card, SettingsSwitch} from './components';
 
 const themes: ColorSchemeName[] = ['dark', 'light'];
