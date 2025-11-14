@@ -19,3 +19,4 @@ export * from './analytics';
 export * from './crashReporting';
 export * from './performance';
 export * from './deepLinking';
+export * from './language';
