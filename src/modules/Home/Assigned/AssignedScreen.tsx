@@ -8,7 +8,7 @@ import {
   View,
   Image,
 } from 'react-native';
-import {MD3useTheme} from 'react-native-paper';
+import {Button, Headline, MD3Colors, Text, Title, useTheme} from 'react-native-paper';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 import {Screen, Spacer} from '../../../components';
@@ -18,8 +18,8 @@ import {groupByType} from '../../../utils';
 import {useAssigned} from '../context/AssignedContext';
 import {RootStackParamList} from '../../../types/navigation';
 
-const white = {color: MD3'#FFFFFF'};
-const grey = {color: MD3colors.surfaceVariant};
+const white = {color: '#FFFFFF'};
+const grey = {color: MD3Colors.neutral60};
 
 export default function AssignedScreen() {
   const nav =
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   emptyText: {
-    color: MD3colors.surfaceVariant,
+    color: MD3Colors.neutral60,
   },
   refreshButton: {
     marginTop: 10,

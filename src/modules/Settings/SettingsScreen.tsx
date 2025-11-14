@@ -128,7 +128,7 @@ const MediaSection = () => {
   const colorScheme = useSettingsStore((state) => state.colorScheme);
 
   const isDark = colorScheme === 'dark';
-  const checkboxColor = isDark ? MD3'#FFFFFF' : colors.primary;
+  const checkboxColor = isDark ? '#FFFFFF' : colors.primary;
 
   return (
     <View style={styles.section}>
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
     height: 50,
   },
   themePreviewLight: {
-    backgroundColor: MD3'#FFFFFF',
+    backgroundColor: '#FFFFFF',
   },
   themePreviewDark: {
     backgroundColor: primaryDark,
@@ -304,8 +304,8 @@ const styles = StyleSheet.create({
   themePreviewSplit: {
     backgroundColor: primaryDark,
     borderTopColor: primaryDark,
-    borderRightColor: MD3'#FFFFFF',
-    borderBottomColor: MD3'#FFFFFF',
+    borderRightColor: '#FFFFFF',
+    borderBottomColor: '#FFFFFF',
     borderLeftColor: primaryDark,
     borderWidth: 25,
     transform: [{rotate: '45deg'}, {scale: 1.2}],
