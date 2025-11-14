@@ -20,12 +20,12 @@ import {
 import {
   Headline,
   IconButton,
+  MD3Colors,
   Paragraph,
   Subheading,
   Title,
   useTheme,
 } from 'react-native-paper';
-import {MD3Colors} from 'react-native-paper/lib/typescript/types';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {MotiView} from 'moti';
 
@@ -33,7 +33,7 @@ import {httpClient} from '../../../api';
 import {Screen, Spacer, TextInput} from '../../../components';
 import {Project} from '../../../types';
 import {QUERY_KEYS, setAsyncItem, getAsyncItem} from '../../../utils';
-import {useSettingsStore} from '../../../stores';
+import useSettingsStore, {colorSchemeSelector} from '../../../stores/settingsStore';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../../../types/navigation';
 
@@ -52,7 +52,7 @@ export default function ProjectsScreen() {
   const nav =
     useNavigation<NativeStackNavigationProp<RootStackParamList, 'Home'>>();
   const {colors} = useTheme();
-  const colorScheme = useSettingsStore((state) => state.colorScheme);
+  const colorScheme = useSettingsStore(colorSchemeSelector);
   const queryClient = useQueryClient();
 
   const isDark = colorScheme === 'dark';
@@ -132,7 +132,7 @@ export default function ProjectsScreen() {
           <Spacer horizontal>
             <IconButton
               icon="refresh"
-              iconColor={isDark ? MD3'#FFFFFF' : colors.primary}
+              iconColor={isDark ? '#FFFFFF' : colors.primary}
               onPress={() => refetch()}
               style={{
                 transform: [
@@ -148,7 +148,7 @@ export default function ProjectsScreen() {
 
             <IconButton
               icon="cog"
-              iconColor={isDark ? MD3'#FFFFFF' : colors.primary}
+              iconColor={isDark ? '#FFFFFF' : colors.primary}
               onPress={() => nav.navigate('Settings')}
             />
           </Spacer>
@@ -202,17 +202,17 @@ export default function ProjectsScreen() {
                 iconColor={
                   focused
                     ? isDark
-                      ? MD3'#FFFFFF'
+                      ? '#FFFFFF'
                       : colors.primary
                     : isDark
-                    ? MD3colors.surfaceVariant
-                    : MD3colors.surfaceVariant
+                    ? MD3Colors.neutral60
+                    : MD3Colors.neutral60
                 }
               />
               <RNTextInput
                 {...props}
                 style={[style, styles.searchInput]}
-                placeholderTextColor={MD3colors.surfaceVariant}
+                placeholderTextColor={MD3Colors.neutral60}
               />
             </View>
           );
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   emptyText: {
-    color: MD3colors.surfaceVariant,
+    color: MD3Colors.neutral60,
   },
   listContainer: {
     padding: 20,
@@ -290,14 +290,14 @@ const styles = StyleSheet.create({
   cardShadow: {
     shadowRadius: 7,
     shadowOpacity: 0.2,
-    shadowColor: MD3colors.surfaceVariant,
+    shadowColor: MD3Colors.neutral60,
     shadowOffset: {width: 2, height: 5},
     elevation: 4,
   },
   cardTitle: {
-    color: MD3'#FFFFFF',
+    color: '#FFFFFF',
   },
   cardDescription: {
-    color: MD3colors.surfaceVariant,
+    color: MD3Colors.neutral60,
   },
 });
