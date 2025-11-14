@@ -11,6 +11,7 @@ import AssignedScreen from './screens/AssignedScreen';
 import {useAssigned} from '../../contexts/AssignedContext';
 import useSettingsStore, {colorSchemeSelector} from '../../stores/settingsStore';
 import {useTheme, MD3Colors} from 'react-native-paper';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const Tab = createBottomTabNavigator();
 
@@ -37,10 +38,9 @@ const Tabs = () => {
         component={ProjectsScreen}
         options={{
           title: 'Home',
-          tabBarIcon: ({size, color}) => {
-            // TODO: Add custom SVG icon
-            return null;
-          },
+          tabBarIcon: ({size, color}) => (
+            <Icon name="folder-multiple" size={size} color={color} />
+          ),
         }}
       />
       <Tab.Screen
@@ -49,10 +49,9 @@ const Tabs = () => {
         options={{
           title: 'Assigned Data',
           tabBarBadge: assigned > 0 ? assigned : undefined,
-          tabBarIcon: ({size, color}) => {
-            // TODO: Add custom SVG icon
-            return null;
-          },
+          tabBarIcon: ({size, color}) => (
+            <Icon name="clipboard-text" size={size} color={color} />
+          ),
         }}
       />
     </Tab.Navigator>
