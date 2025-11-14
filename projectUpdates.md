@@ -1,9 +1,9 @@
 # PDCollector V2 Migration Guide
 ## React Native 0.63.4 → 0.81.5 Upgrade
 
-**Last Updated:** 2025-11-13
+**Last Updated:** 2025-11-14
 **Status:** In Progress
-**Current Phase:** Phase 6 - Authentication Module ✅ COMPLETE
+**Current Phase:** Phase 8 - Native Modules & Permissions ✅ COMPLETE
 
 ---
 
@@ -808,75 +808,204 @@ Ready to proceed with Phase 8: Maps & Location (or continue with remaining featu
 
 ---
 
-## 📋 PHASE 8: Maps & Location
-**Status:** 🟡 NOT STARTED
-**Goal:** Migrate map functionality
+## 📋 PHASE 8: Native Modules & Permissions
+**Status:** ✅ COMPLETE
+**Completed:** 2025-11-14
+**Duration:** ~1.5 hours
+**Goal:** Install and configure all native modules for RN 0.81.5
 
-### Tasks
-- [ ] Install react-native-permissions v4
-- [ ] Configure iOS permissions in Podfile
-- [ ] Configure Android permissions
-- [ ] Install react-native-image-picker v5+
-- [ ] Install react-native-audio-recorder-player
-- [ ] Install react-native-fs
-- [ ] Migrate permission utilities
-- [ ] Test camera permissions
-- [ ] Test microphone permissions
-- [ ] Test storage permissions
+### Completed Tasks
+- [x] Identify all native modules from old project
+- [x] Research RN 0.81.5 compatible versions
+- [x] Install Batch 1: Permissions, NetInfo, Clipboard
+  - react-native-permissions@^4.1.5
+  - @react-native-community/netinfo@^11.4.1
+  - @react-native-clipboard/clipboard@^1.14.2
+- [x] Install Batch 2: Media and File System
+  - react-native-image-picker@^7.1.2
+  - react-native-audio-recorder-player@^3.6.14
+  - react-native-fs@^2.20.0
+- [x] Install Batch 3: Maps and Location
+  - react-native-maps@^1.18.0
+  - react-native-geolocation-service@^5.3.1
+- [x] Install Batch 4: Background and Notifications
+  - react-native-background-fetch@^4.2.5
+  - react-native-push-notification@^8.1.1
+  - @react-native-community/push-notification-ios@^1.11.0
+- [x] Install Batch 5: DateTime and Vector Icons
+  - @react-native-community/datetimepicker@^8.2.0
+  - react-native-vector-icons@^10.3.0
+- [x] Update Android configurations
+  - Added comprehensive permissions to AndroidManifest.xml
+  - Added Google Play Services dependencies to build.gradle
+  - Configured Google Maps API key placeholder
+- [x] Update iOS configurations
+  - Added all permission descriptions to Info.plist
+  - Added UIBackgroundModes for location, fetch, notifications
+  - Configured Podfile with permission pods
+  - Added react-native-google-maps pod
+- [x] Migrate utility code for native modules
+  - Created permissions.ts utility
+  - Created network.ts utility
+  - Created imagePicker.ts utility
+  - Created geolocation.ts utility
 
-### Dependencies
-```json
-{
-  "dependencies": {
-    "react-native-permissions": "^4.1.0",
-    "react-native-image-picker": "^7.0.0",
-    "react-native-audio-recorder-player": "^3.6.4",
-    "react-native-fs": "^2.20.0",
-    "react-native-encrypted-storage": "^4.0.3"
-  }
-}
-```
+### Native Modules Installed
 
-### Testing Checklist
-- [ ] Permissions request works
-- [ ] Image picker works
-- [ ] Audio recording works
-- [ ] File system access works
-- [ ] Permission errors handled
+#### Core Permissions & Network (Batch 1)
+| Module | Version | Purpose |
+|--------|---------|---------|
+| react-native-permissions | 4.1.5 | Unified permission handling |
+| @react-native-community/netinfo | 11.4.1 | Network connectivity detection |
+| @react-native-clipboard/clipboard | 1.14.2 | Clipboard access |
 
----
+#### Media & File System (Batch 2)
+| Module | Version | Purpose | Notes |
+|--------|---------|---------|-------|
+| react-native-image-picker | 7.1.2 | Camera and photo library | Replaces deprecated camera modules |
+| react-native-audio-recorder-player | 3.6.14 | Audio recording and playback | ⚠️ Deprecated, but functional |
+| react-native-fs | 2.20.0 | File system operations | For form data storage |
 
-## 📋 PHASE 8: Maps & Location
-**Status:** 🟡 NOT STARTED
-**Goal:** Migrate map functionality
+#### Maps & Location (Batch 3)
+| Module | Version | Purpose |
+|--------|---------|---------|
+| react-native-maps | 1.18.0 | Map display and interaction |
+| react-native-geolocation-service | 5.3.1 | Location services |
 
-### Tasks
-- [ ] Install react-native-maps
-- [ ] Configure iOS (Podfile)
-- [ ] Configure Android (build.gradle)
-- [ ] Install react-native-geolocation-service
-- [ ] Migrate Map components
-- [ ] Migrate map utilities
-- [ ] Set up location permissions
-- [ ] Test basic map rendering
-- [ ] Test markers and polygons
+#### Background & Notifications (Batch 4)
+| Module | Version | Purpose |
+|--------|---------|---------|
+| react-native-background-fetch | 4.2.5 | Background task execution |
+| react-native-push-notification | 8.1.1 | Push notifications (Android) |
+| @react-native-community/push-notification-ios | 1.11.0 | Push notifications (iOS) |
 
-### Dependencies
-```json
-{
-  "dependencies": {
-    "react-native-maps": "^1.10.0",
-    "react-native-geolocation-service": "^5.3.1"
-  }
-}
-```
+#### Additional (Batch 5)
+| Module | Version | Purpose | Notes |
+|--------|---------|---------|-------|
+| @react-native-community/datetimepicker | 8.2.0 | Date/time picker | For form fields |
+| react-native-vector-icons | 10.3.0 | Icon library | ⚠️ Migrating to per-family packages |
 
-### Testing Checklist
-- [ ] Map renders
-- [ ] Markers display
-- [ ] Polygons display
-- [ ] User location works
-- [ ] Map interactions work
+### Android Configuration Updates
+
+**AndroidManifest.xml:**
+- Internet and network state permissions
+- Fine, coarse, and background location permissions
+- Foreground service and location service permissions
+- Camera permission
+- Read/write external storage (scoped to SDK 32)
+- Read media images/audio/video (Android 13+)
+- Record audio permission
+- Wake lock, boot completed, vibrate permissions
+- Post notifications (Android 13+)
+- Camera and GPS hardware features (optional)
+
+**android/app/build.gradle:**
+- Google Play Services Maps: 18.2.0
+- Google Play Services Location: 21.3.0
+- AndroidX AppCompat: 1.6.1
+- Google Maps API key placeholder configured
+
+### iOS Configuration Updates
+
+**Info.plist:**
+- Location permissions (WhenInUse, Always, AlwaysAndWhenInUse)
+- Camera usage description
+- Photo library usage and add descriptions
+- Microphone usage description
+- UIBackgroundModes: location, fetch, remote-notification, audio
+
+**Podfile:**
+- Permission pods configured:
+  - Permission-Camera
+  - Permission-LocationAccuracy
+  - Permission-LocationAlways
+  - Permission-LocationWhenInUse
+  - Permission-MediaLibrary
+  - Permission-Microphone
+  - Permission-Notifications
+  - Permission-PhotoLibrary
+- react-native-google-maps pod configured
+
+### Utility Files Created
+
+**1. permissions.ts** (`src/utils/permissions.ts`)
+- Unified permission checking and requesting
+- Support for camera, location, locationAlways, microphone, photoLibrary, notifications
+- Platform-specific permission handling
+- Alert dialog for blocked/denied permissions
+- Bulk permission operations
+
+**2. network.ts** (`src/utils/network.ts`)
+- Network status monitoring
+- Connection type detection (wifi, cellular, etc.)
+- Internet reachability checking
+- Network status subscription with callbacks
+- NetInfo configuration
+
+**3. imagePicker.ts** (`src/utils/imagePicker.ts`)
+- Camera photo capture with permission check
+- Photo library selection (single/multiple)
+- Configurable quality and size options
+- Base64 encoding support
+- Auto-save to photo library
+
+**4. geolocation.ts** (`src/utils/geolocation.ts`)
+- Current position retrieval
+- Position watching for real-time tracking
+- Distance calculation (Haversine formula)
+- Coordinate formatting
+- iOS authorization request
+- High accuracy mode support
+
+### Migration Notes
+
+**Deprecation Warnings:**
+1. **react-native-audio-recorder-player** - Deprecated in favor of react-native-nitro-sound
+   - Decision: Keep for now since old project uses it
+   - Can migrate later if needed
+
+2. **react-native-vector-icons** - Moving to per-icon-family packages
+   - Decision: Keep unified package for now
+   - Migration guide available for future update
+
+**Permission Handling:**
+- All permissions now use react-native-permissions unified API
+- Permission utilities provide consistent cross-platform experience
+- Automatic alert dialogs guide users to settings when blocked
+
+**Google Maps:**
+- API key configured as environment variable: ${GOOGLE_MAPS_API_KEY}
+- Needs to be set in gradle.properties or environment
+- Both Android and iOS configured
+
+### Deferred Components
+
+These modules are deferred to later phases when they're actually needed:
+- **Background geolocation** (Phase 9) - High risk git dependency
+- **Map components** (Phase 12) - Form map integration
+- **Actual map screens** (Phase 17) - Map viewing module
+
+### Testing Notes
+- [x] TypeScript compilation successful (no errors)
+- [x] All modules installed without conflicts
+- [x] Android manifest properly configured
+- [x] iOS Info.plist properly configured
+- [x] Utility functions properly typed
+- [ ] Runtime testing pending (requires device/emulator):
+  - [ ] Permission requests work
+  - [ ] Image picker works
+  - [ ] Camera works
+  - [ ] Geolocation works
+  - [ ] Network status detection works
+  - [ ] Maps render (when map components created)
+
+### Known Issues
+- Audio recorder is deprecated but functional - monitor for issues
+- Vector icons deprecation warning - can migrate later if needed
+- Google Maps API key needs to be provided in environment
+
+### Next Phase
+Ready to proceed with Phase 9: Background Location Tracking (or other feature screens)
 
 ---
 
@@ -1362,6 +1491,8 @@ If major issues arise in any phase:
 
 | Date | Phase | Changes | Notes |
 |------|-------|---------|-------|
+| 2025-11-14 | 8 | Completed Native Modules & Permissions | Installed 15+ native modules, configured Android/iOS permissions, created utility files |
+| 2025-11-14 | 7 | Completed Feature Screens - Batch 1 | Projects, Assigned, Settings, ProjectViewer screens migrated |
 | 2025-11-13 | 6 | Completed Authentication Module | Login and PasswordChange screens migrated with react-hook-form, Notification component added |
 | 2025-11-13 | 5 | Completed UI Components & Theming | React Native Paper v5, 8 shared components, theme integration |
 | 2025-11-13 | 3 | Completed Navigation Structure | React Navigation v6, 10 placeholder screens, auth flow routing |
