@@ -123,7 +123,7 @@ dependencies {
     }
 
     // Kotlin stdlib for compatibility
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.22")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:2.0.21")
 
     // Firebase BOM (Bill of Materials) - manages Firebase versions
     implementation platform('com.google.firebase:firebase-bom:32.7.0')
